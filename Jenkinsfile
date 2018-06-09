@@ -92,4 +92,9 @@ pipeline {
             }
         }
     }
+    post {
+        always {
+            junit impl/target/reports/**/*.xml
+        }
+    }
 }
