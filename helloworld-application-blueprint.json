@@ -28,11 +28,11 @@
  ], 
  "webapps": [
     {
-      "configDescriptors": [],
-      "exposePorts": [],
-      "name": "helloworld-app",
-      "volumes": [],
-      "id": "HelloWorldWebApp"
+     "configDescriptors": [], 
+     "exposePorts": [], 
+     "id": "helloworld-app", 
+     "volumes": [], 
+     "name": "helloworld-app-1.0.0"
     }
   ], 
  "dependencies": [], 
