@@ -118,13 +118,19 @@
             </classpath>
 
             <formatter type="plain"/>
-
+            <formatter type="xml"/>
             <batchtest fork="yes" todir="${test.reports.dir}">
                 <fileset dir="${target.test.classes.dir}">
                     <include name="**/*.class"/>
                 </fileset>
             </batchtest>
         </junit>
+        <junitreport todir="${test.reports.dir}">
+            <fileset dir="${test.reports.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${test.reports.dir}/html"/>
+        </junitreport>
     </target>
 
     <target name="package" depends="test" description="Generates the final package for the project">
