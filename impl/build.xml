@@ -1,0 +1,185 @@
+<project name="helloworld" basedir="." default="deploy">
+
+    <property environment="env"/>
+
+    <!-- The final name of the distributable -->
+    <property name="dist.name" value="helloworld-impl"/>
+
+    <property name="src.root.dir" value="${basedir}/src"/>
+    <property name="src.main.java.dir" value="${src.root.dir}/main/java"/>
+    <property name="src.main.resources.dir" value="${src.root.dir}/main/resources"/>
+    <property name="src.main.lib.dir" value="${src.root.dir}/main/lib"/>
+    <property name="src.test.java.dir" value="${src.root.dir}/test/java"/>
+    <property name="src.test.resources.dir" value="${src.root.dir}/test/resources"/>
+    <property name="src.test.lib.dir" value="${src.root.dir}/test/lib"/>
+
+    <property name="target.dir" value="${basedir}/target"/>
+    <property name="target.classes.dir" value="${target.dir}/classes"/>
+    <property name="target.test.classes.dir" value="${target.dir}/test-classes"/>
+
+    <property name="dist.dir" value="${basedir}/dist"/>
+
+    <!-- Clean the generated content -->
+    <target name="clean">
+        <delete dir="${target.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <!-- Setup the necessary directories and other initialization -->
+    <target name="init">
+        <fail unless="env.MACAW_SDK_HOME" message="Please set the MACAW_SDK_HOME environment variable to point to the path of the relevant Macaw SDK root directory"/>
+        <echo message="Using MACAW_SDK_HOME ${env.MACAW_SDK_HOME}"/>
+        <property name="macaw-service-runtime-binary" value="${env.MACAW_SDK_HOME}/runtime/macaw-service-runtime.tar.gz"/>
+        <mkdir dir="${target.dir}"/>
+        <mkdir dir="${dist.dir}/${dist.name}" />
+        <!-- Untar the service runtime distribution -->
+        <untar compression="gzip" src="${macaw-service-runtime-binary}" dest="${dist.dir}/${dist.name}"/>
+    </target>
+
+    <path id="compile.classpath">
+        <!-- Use the main compile time libraries for tests too -->
+        <fileset dir="${src.main.lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="${dist.dir}/${dist.name}/modules/io/macaw/service-client/main">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="${dist.dir}/${dist.name}/modules/io/macaw/service-api/main">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="${dist.dir}/${dist.name}/modules/javax/inject/main">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="${dist.dir}/${dist.name}/modules/org/slf4j/slf4j-api/main">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- Test source compilation classpath -->
+    <path id="test.classpath">
+        <!-- Make the compiled source available to tests -->
+        <pathelement path="${target.classes.dir}"/>
+        <!-- Use the main compile time libraries for tests too -->
+        <path refid="compile.classpath"/>
+        <!-- Test specific libraries -->
+        <fileset dir="${src.test.lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- Compile the main source -->
+    <target name="compile" depends="init" description="Compiles the main source">
+        <mkdir dir="${target.classes.dir}"/>
+        <javac memoryMaximumSize="256m" srcdir="${src.main.java.dir}" destdir="${target.classes.dir}" fork="yes" source="1.8" debug="true" debuglevel="lines,vars,source">
+            <classpath>
+                <path refid="compile.classpath"/>
+            </classpath>
+        </javac>
+        <!-- Copy the main resources to the target dir-->
+        <antcall target="copy-resources"/>
+    </target>
+
+    <target name="copy-resources">
+        <mkdir dir="${target.classes.dir}"/>
+        <copy todir="${target.classes.dir}">
+            <fileset dir="${src.main.resources.dir}"/>
+        </copy>
+    </target>
+
+    <target name="check-tests-exist">
+        <available file="${src.test.java.dir}" property="tests.exist"/>
+    </target>
+
+    <target name="test-compile" depends="compile, check-tests-exist" description="Compiles the test source" if="${tests.exist}">
+        <mkdir dir="${target.test.classes.dir}"/>
+        <javac memoryMaximumSize="256m" srcdir="${src.test.java.dir}" destdir="${target.test.classes.dir}" fork="yes" source="1.8" debug="true" debuglevel="lines,vars,source">
+            <classpath refid="test.classpath"/>
+        </javac>
+        <!-- Copy the test resources to the target dir-->
+        <antcall target="copy-test-resources"/>
+    </target>
+
+    <target name="copy-test-resources" depends="check-tests-exist" if="${tests.exist}">
+        <mkdir dir="${target.test.classes.dir}"/>
+        <copy todir="${target.test.classes.dir}" failonerror="false">
+            <fileset dir="${src.test.resources.dir}"/>
+        </copy>
+    </target>
+
+    <!-- Runs tests prior to creating a dist -->
+    <target name="test" depends="test-compile" description="Runs the unit tests">
+        <property name="test.reports.dir" value="${target.dir}/reports"/>
+        <mkdir dir="${test.reports.dir}"/>
+        <junit printsummary="yes" haltonfailure="yes">
+            <classpath>
+                <path refid="test.classpath"/>
+                <pathelement location="${target.classes.dir}"/>
+                <pathelement location="${target.test.classes.dir}"/>
+            </classpath>
+
+            <formatter type="plain"/>
+
+            <batchtest fork="yes" todir="${test.reports.dir}">
+                <fileset dir="${target.test.classes.dir}">
+                    <include name="**/*.class"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="package" depends="test" description="Generates the final package for the project">
+        <jar file="${dist.dir}/${dist.name}.jar">
+            <fileset dir="${target.classes.dir}"/>
+        </jar>
+    </target>
+
+    <target name="dist" depends="package" description="Generates the binary distribution of this project">
+        <mkdir dir="${dist.dir}/${dist.name}" />
+        <!-- Get the service runtime distribution -->
+        <!-- Untar the service runtime distribution -->
+        <untar compression="gzip" src="${macaw-service-runtime-binary}" dest="${dist.dir}/${dist.name}"/>
+        <!-- replace the "program-name" placeholder value in the startup scripts -->
+        <replace dir="${dist.dir}/${dist.name}/bin" casesensitive="false" token="@program-name@" value="calculator-impl">
+            <include name="startup.sh"/>
+            <include name="startup.bat"/>
+        </replace>
+
+        <!-- Make sure the .sh have the correct permissions -->
+        <chmod perm="755">
+            <fileset dir="${dist.dir}/${dist.name}/bin">
+                <include name="**/*.sh"/>
+            </fileset>
+        </chmod>
+
+        <!-- Copy over the service specific artifacts and dependencies to a relevant sub-directory in the services folder -->
+        <property name="services-root-dir" value="${dist.dir}/${dist.name}/services"/>
+        <copy todir="${services-root-dir}/${dist.name}">
+            <fileset dir="${src.main.resources.dir}"/>
+        </copy>
+
+        <!-- The service's dependencies -->
+        <copy todir="${services-root-dir}/${dist.name}/lib">
+            <fileset dir="${src.main.lib.dir}" />
+            <!-- Copy over the compiled jar of this project to the lib folder of the distribution -->
+            <fileset dir="${dist.dir}" includes="${dist.name}.jar" />
+        </copy>
+
+    </target>
+
+    <target name="tar" depends="dist">
+        <tar destfile="${dist.dir}/${dist.name}.tar.gz" compression="gzip">
+            <tarfileset dir="${dist.dir}/${dist.name}">
+                <exclude name="bin/**/*.sh"/>
+            </tarfileset>
+            <tarfileset dir="${dist.dir}/${dist.name}/bin" filemode="755" prefix="bin">
+                <include name="**/*.sh"/>
+            </tarfileset>
+        </tar>
+    </target>
+
+    <target name="deploy" depends="tar" description="Deploy the service to the service runtime">
+    </target>
+
+</project>
+
+

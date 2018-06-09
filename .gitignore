@@ -1,0 +1,13 @@
+target
+build/
+dist/
+
+.DS_Store
+
+# ignore IDEA files
+*.iml
+*.ipr
+*.iws
+.idea
+
+

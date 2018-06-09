@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service implementation-class="io.zolontech.helloworld.impl.Helloworld" name="helloworld" namespace="io.zolontech.services" version="1.0.0">
+    <service-dependencies/>
+    <properties>
+        <managed>
+            <property-group name="service-deployment-config">
+                <property name="service.registry.host" value="localhost"/>
+                <property name="service.registry.port" value="8443"/>
+                <property name="service.registry.protocol" value="https"/>
+                <property name="cfx.ssl.truststore.location" value="/var/folders/7v/cnkwrnx154926cr3289w4rd80000gp/T/"/>
+                <property name="cfx.ssl.truststore.password" value="truststore-password-goes-here"/>
+            </property-group>
+        </managed>
+    </properties>
+    <data-converters>
+        <data-converter class="io.zolontech.helloworld.JsonConverter" data-type="json"/>
+    </data-converters>
+</service>

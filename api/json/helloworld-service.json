@@ -1,0 +1,26 @@
+{
+	"service": {
+            "namespace": "io.zolontech.services",
+            "name": "helloworld",
+            "version": "1.0.0",
+            "description": "A basic hello-world service",
+			"apis" : [
+				{
+					"name" : "sayHello",
+					"description" : "Returns a hello-world message",
+					"output" : {
+						"type" : "string"
+					}
+				}
+			],
+			"options" : {
+				"code-gen" : {
+					"java" : {
+						"package-name" : "io.zolontech.helloworld"
+					}
+				}
+
+			}
+
+	}
+}

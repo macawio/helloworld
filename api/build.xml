@@ -1,0 +1,32 @@
+<project name="helloworld" basedir="." default="deploy">
+
+    <property environment="env"/>
+
+    <!-- The final name of the distributable -->
+    <property name="jar.name" value="helloworld-api"/>
+
+    <property name="src.root.dir" value="${basedir}/src"/>
+    <property name="service.impl.src.main.lib.dir" value="${basedir}/../impl/src/main/lib/"/>
+
+    <target name="init">
+        <fail unless="env.MACAW_SDK_HOME" message="Please set the MACAW_SDK_HOME environment variable to point to the path of the relevant Macaw SDK root directory"/>
+        <echo message="Using MACAW_SDK_HOME ${env.MACAW_SDK_HOME}"/>
+    </target>
+
+    <target name="clean">
+    </target>
+
+    <target name="deploy" depends="init" description="Places the API jar in the service implementation's libraries folder">
+        <mkdir dir="${service.impl.src.main.lib.dir}"/>
+        <copy file="${jar.name}.jar" todir="${service.impl.src.main.lib.dir}"/>
+        <!-- Copy the gson library needed by the API -->
+        <property name="macaw-service-runtime-binary" value="${env.MACAW_SDK_HOME}/runtime/macaw-service-runtime.tar.gz"/>
+        <untar compression="gzip" src="${macaw-service-runtime-binary}" dest="${service.impl.src.main.lib.dir}">
+            <patternset includes="modules/com/google/gson/main/*.jar"/>
+            <flattenmapper/>
+        </untar>
+    </target>
+
+</project>
+
+

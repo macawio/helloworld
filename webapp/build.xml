@@ -1,0 +1,32 @@
+<project name="helloworld-webapp" basedir="." default="war">
+
+    <property environment="env"/>
+
+    <!-- The final name of the distributable -->
+    <property name="dist.name" value="helloworld"/>
+
+    <property name="src.root.dir" value="${basedir}/src"/>
+    <property name="webapp.main.dir" value="${src.root.dir}/main"/>
+
+    <property name="target.dir" value="${basedir}/target"/>
+
+    <!-- Clean the generated content -->
+    <target name="clean">
+        <delete dir="${target.dir}"/>
+    </target>
+
+    <!-- Setup the necessary directories and other initialization -->
+    <target name="init">
+        <mkdir dir="${target.dir}"/>
+    </target>
+
+
+    <target name="war" depends="init">
+        <war destfile="${target.dir}/${dist.name}.war" needxmlfile="false">
+            <fileset dir="${webapp.main.dir}"/>
+        </war>
+    </target>
+
+</project>
+
+
