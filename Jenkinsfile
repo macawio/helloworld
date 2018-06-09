@@ -94,7 +94,7 @@ pipeline {
     }
     post {
         always {
-            junit impl/target/reports/**/*.xml
+            junit 'impl/target/reports/**/*.xml'
         }
     }
 }
