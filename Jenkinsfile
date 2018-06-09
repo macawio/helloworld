@@ -2,9 +2,9 @@ def dockerImageTag
 pipeline {
     agent any
     triggers {
-        // poll the SCM every 5 minutes and trigger a build
+        // poll the SCM every 2 minutes and trigger a build
         // if any new changes are present
-        pollSCM('H/5 * * * *')
+        pollSCM('H/2 * * * *')
     }
     parameters {
         booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Should the tests be run?')
