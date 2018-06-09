@@ -1,0 +1,44 @@
+{
+ "id": "98512989-095c-5f3f-9aaa-cb2142639236", 
+ "name": "Hello World Application", 
+ "description": "A simple application consisting of a Macaw service and a web application", 
+ "category": "Macaw Services", 
+ "tag": "MicroServices", 
+ "icon": "microservices", 
+ "published": {
+  "date": "2018-06-09T14:06:34.779499", 
+  "organization": "macaw.io", 
+  "user": "macaw"
+ }, 
+ "revision": "1.0", 
+ "services": [
+  {
+   "minQuantity": 0, 
+   "configDescriptors": [], 
+   "volumes": [], 
+   "service-version": "1.0.0", 
+   "defaultQuantity": 1, 
+   "service-name": "helloworld", 
+   "id": "helloworld", 
+   "name": "helloworld-v1.0.0", 
+   "exposePorts": [], 
+   "service-namespace": "io.zolontech.services", 
+   "maxQuantity": 8
+  }
+ ], 
+ "webapps": [
+    {
+      "configDescriptors": [],
+      "exposePorts": [],
+      "name": "helloworld-app",
+      "volumes": [],
+      "id": "HelloWorldWebApp"
+    }
+  ], 
+ "dependencies": [], 
+ "deployment": {
+  "order": [
+   "helloworld"
+  ]
+ }
+}
