@@ -13,7 +13,7 @@ pipeline {
         string(name: 'SERVICE_BLUEPRINT_ID', defaultValue:'98512989-095c-5f3f-9aaa-cb2142639236', description: 'The blueprint id to use for provisioning the service. This will be used if service provisioning is enabled')
         booleanParam(name: 'ROLLING_UPDATE', defaultValue: true, description: 'Will this be a rolling update or a new cluster needs to be provisioned')
         booleanParam(name: 'SKIP_CERT_VERIFICATION', defaultValue: true, description: 'If set to true then any SSL certificate errors will be ignored. Typically, for self-signed certificates this param can be set to true')
-        string(name: 'SERVICE_ID', defaultValue:'', description: 'The service id of the service in blueprint that needs to be provisioned')
+        string(name: 'SERVICE_ID', defaultValue:'helloworld', description: 'The service id of the service in blueprint that needs to be provisioned')
     }
     stages {
         stage('Checkout Source') {
